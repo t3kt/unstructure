@@ -4,6 +4,7 @@
 def generateCubeRows(n):
   rows = []
   n = int(n)
+  id = 0
   for z in range(0, n):
     for y in range(0, n):
       for x in range(0, n):
@@ -18,34 +19,112 @@ def generateCubeRows(n):
             type = 'edge'
           elif maxed == 3:
             type = 'corner'
-          rows.append([x, y, z, type])
+          isTop = 1 if y == n-1 else 0
+          isBottom = 1 if y == 0 else 0
+          isLeft = 1 if x == 0 else 0
+          isRight = 1 if x == n-1 else 0
+          rows.append([id, x, y, z, type, isTop, isBottom, isLeft, isRight])
+          id += 1
   return rows
 
-#def scale(val, src, dst):
-#  """
-#  Scale the given value from the scale of src to the scale of dst.
-#  """
-#  return ((val - src[0]) / (src[1]-src[0])) * (dst[1]-dst[0]) + dst[0]
 
-
-def generateCubeRows(tbl, n):
-  tbl.clear(keepFirstRow=True)
+def fillCubeTable(tbl, n):
+  tbl.clear()
+  tbl.appendRow(['id', 'x', 'y', 'z', 'type', 'istop', 'isright', 'isbottom', 'isleft'])
   rows = generateCubeRows(n)
-  n = float(n)
-  if n % 2 == 0:
-    max = n/2.0 + .5
-  else:
-    max = (n-1.0)/2.0
-  min = -max
-  id = 0
   for row in rows:
-     tbl.appendRow([id, row[0], row[1], row[2], row[3]])
-     id = id + 1
+    tbl.appendRow(row)
 
 
-def generatePathRows():
-  pass
+def generatePathPositionRows(startOffset, n, axis0 = 'x', axis1 = 'y'):
+  rows = []
+  parts = [
+           ('t', generatePathPositions_TOP_to_RIGHT(startOffset, n)),
+           ('r', generatePathPositions_RIGHT_to_BOTTOM(startOffset, n)),
+           ('b', generatePathPositions_BOTTOM_to_LEFT(startOffset, n)),
+           ('l', generatePathPositions_LEFT_to_TOP(startOffset, n))
+          ]
+  for part in parts:
+    rows.extend(positionsToRows(part[1], part[0], axis0, axis1))
+  return rows
 
+def generatePathPositions_TOP_to_RIGHT(startOffset, n):
+  positions = []
+  (x,y) = (startOffset, n-1)
+  positions.append( (x,y) )
+  y += 1
+  positions.append( (x,y) )
+  while x <= (n - 1):
+    x += 1
+    positions.append( (x,y) )
+  while y >= (n-startOffset):
+    y -= 1
+    positions.append( (x,y) )
+  x -= 1
+  positions.append( (x,y) )
+  return positions
+
+def generatePathPositions_RIGHT_to_BOTTOM(startOffset, n):
+  positions = []
+  (x,y) = (n-1, n-1-startOffset)
+  positions.append( (x,y) )
+  x += 1
+  positions.append( (x,y) )
+  while y > -1:
+    y -= 1
+    positions.append( (x,y) )
+  while x >= (n-startOffset):
+    x -= 1
+    positions.append( (x,y) )
+  y += 1
+  positions.append( (x,y) )
+  return positions
+
+def generatePathPositions_BOTTOM_to_LEFT(startOffset, n):
+  positions = []
+  (x,y) = (n-1-startOffset, 0)
+  positions.append( (x,y) )
+  y -= 1
+  positions.append( (x,y) )
+  while x > -1:
+    x -= 1
+    positions.append( (x,y) )
+  while y < startOffset:
+    y += 1
+    positions.append( (x,y) )
+  x += 1
+  positions.append( (x,y) )
+  return positions
+
+def generatePathPositions_LEFT_to_TOP(startOffset, n):
+  positions = []
+  (x,y) = (0, startOffset)
+  positions.append( (x,y) )
+  x -= 1
+  positions.append( (x,y) )
+  while y < n:
+    y += 1
+    positions.append( (x,y) )
+  while x < startOffset:
+    x += 1
+    positions.append( (x,y) )
+  y -= 1
+  positions.append( (x,y) )
+  return positions
+
+def fillPathPositionTable(tbl, startOffset, n, axis0 = 'x', axis1 = 'y'):
+  tbl.clear()
+  rows = generatePathPositionRows(startOffset, n, axis0, axis1)
+  for row in rows:
+    tbl.appendRow(row)
+
+def positionsToRows(positions, name, axis0 = 'x', axis1 = 'y'):
+  xrow = [name, axis0]
+  yrow = [name, axis1]
+  for (x,y) in positions:
+    xrow.append(x)
+    yrow.append(y)
+  return (xrow, yrow)
 
 if __name__ == 'main':
-  print(repr( generateCubeRows(3) ) )
+  print(repr( generatePathPositions_TOP_to_RIGHT(2, 4) ) )

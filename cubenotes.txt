@@ -15,9 +15,16 @@ total cubes =
 	cubes= 9+9+(4*2)=26 (correct!)
 
 There are 3 distinct types of blocks on a cube:
-    Corner Block - It has three color faces and three adjacent pieces that it will share a side with at any time.
-    Edge Block - It has two color faces and has 4 adjacent pieces that it will share a side with at any time. In 3x3 blocks it always has 2 center pieces and 2 corner pieces.
-    Center block - In a 3x3 cube this piece is not movable, however it can be rotated. It will always have 4 adjacent edge blocks. In larger cubes there are multiple center blocks that could share with another center block or an edge piece. Center blocks never are adjacent to a corner block.
+    Corner Block - It has three color faces and three adjacent pieces
+    	that it will share a side with at any time.
+    Edge Block - It has two color faces and has 4 adjacent pieces that
+    	it will share a side with at any time. In 3x3 blocks it always
+    	has 2 center pieces and 2 corner pieces.
+    Center block - In a 3x3 cube this piece is not movable, however it
+    	can be rotated. It will always have 4 adjacent edge blocks. In
+    	larger cubes there are multiple center blocks that could share
+    	with another center block or an edge piece. Center blocks never
+    	are adjacent to a corner block.
 
 
 maybe represent and refer to them based on their starting coordinates?
@@ -103,5 +110,100 @@ maybe represent and refer to them based on their starting coordinates?
     (2, 0, 0)  (1, 0, 0)  (0, 0, 0)
     (2, 0, 1)  (1, 0, 1)  (0, 0, 1)
     (2, 0, 2)  (1, 0, 2)  (0, 0, 2)
+
+
+
+
+
+
+
+rotation will always only involve 2 dimensions
+    
+    [ ][ ][ ][ ]
+    [ ]      [ ]
+    [ ]      [ ]
+    [ ][ ][ ][ ]
+
+
+n = cubes per side
+offset = distance of A from top left corner (in this example: offset=2)
+       = distance from B to top right corner
+       = etc
+A = cubes[offset,	n]
+B = cubes[n,		n-offset]
+C = cubes[offset-n,	0]
+D = cubes[0,		offset]
+                
+    [ ][ ][A][ ]
+    [D]      [ ]
+    [ ]      [B]
+    [ ][C][ ][ ]
+ -------->
+          [A]       A:     y+1
+    [ ][ ]   [ ]    B: x+1  
+ [D]         [ ]    C:     y-1
+    [ ]         [B] D: x-1
+    [ ]   [ ][ ]
+       [C]
+ -------->
+             [A]    A: x+1
+ [D][ ][ ]   [ ]    B:     y-1
+             [ ]    C: x-1
+    [ ]             D:     y+1
+    [ ]   [ ][ ][B]
+    [C]
+ -------->
+ [D]            [A] A: x+1
+    [ ][ ]   [ ]    B:     y-1
+             [ ]    C: x-1
+    [ ]             D:     y+1
+    [ ]   [ ][ ]
+ [C]            [B]
+ -------->
+    [D]             A:     y-1
+    [ ][ ]   [ ][A] B: x-1
+             [ ]    C:     y+1
+    [ ]             D: x+1
+ [C][ ]   [ ][ ]
+             [B]
+ -------->
+       [D]          A:     y-1
+    [ ][ ]   [ ]    B: x-1
+             [ ][A] C:     y+1
+ [C][ ]             D: x+1
+    [ ]   [ ][ ]
+          [B]
+ -------->
+          [D]       A:     y-1
+    [ ][ ]   [ ]    B: x-1
+ [C]         [ ]    C:     y+1
+    [ ]         [A] D: x+1
+    [ ]   [ ][ ]
+       [B]
+ -------->
+    [ ][ ][D][ ]    A: x-1
+    [C]      [ ]    B:     y+1
+    [ ]      [A]    C: x+1
+    [ ][B][ ][ ]    D:     y-1
+
+steps:
+    x_a:    0    0    1    2    2    2    2    1
+    y_a:    0   -1   -1   -1    0   -1   -2   -2
+    
+    x_b:    0    1    1    1    0   -1   -2   -2
+    y_b:    0    0   -1   -2   -2   -2   -2   -1
+    
+    x_c:    0    0   -1   -2   -2   -2   -2   -1
+    y_c:    0   -1   -1   -1    0    1    2    2
+    
+    x_d:    0   -1   -1   -1    0    1    2    2
+    y_d:    0    0    1    2    2    2    2    1
+
+
+
+
+
+
+
 
 
