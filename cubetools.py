@@ -23,20 +23,22 @@ def generateCubeRows(n):
           isBottom = 1 if y == 0 else 0
           isLeft = 1 if x == 0 else 0
           isRight = 1 if x == n-1 else 0
-          rows.append([id, x, y, z, type, isTop, isBottom, isLeft, isRight])
+          isFront = 1 if z == 0 else 0
+          isBack = 1 if z == n-1 else 0
+          rows.append([id, x, y, z, type, isTop, isRight, isBottom, isLeft, isFront, isBack])
           id += 1
   return rows
 
 
 def fillCubeTable(tbl, n):
   tbl.clear()
-  tbl.appendRow(['id', 'x', 'y', 'z', 'type', 'istop', 'isright', 'isbottom', 'isleft'])
+  tbl.appendRow(['id', 'x', 'y', 'z', 'type', 'istop', 'isright', 'isbottom', 'isleft', 'isfront', 'isback'])
   rows = generateCubeRows(n)
   for row in rows:
     tbl.appendRow(row)
 
 
-def generatePathPositionRows(startOffset, n, axis0 = 'x', axis1 = 'y'):
+def generatePathPositionRows(startOffset, n, cubeTbl, axis0 = 'x', axis1 = 'y'):
   rows = []
   parts = [
            ('t', generatePathPositions_TOP_to_RIGHT(startOffset, n)),
@@ -45,7 +47,14 @@ def generatePathPositionRows(startOffset, n, axis0 = 'x', axis1 = 'y'):
            ('l', generatePathPositions_LEFT_to_TOP(startOffset, n))
           ]
   for part in parts:
-    rows.extend(positionsToRows(part[1], part[0], axis0, axis1))
+    #rows.append([part[0], 'id', getCubeId(cubeTbl, part[1][0], part[1][1], ??????) ])
+    (xrow, yrow) = positionsToRows(part[1])
+    xrow.insert(0, part[0])
+    xrow.insert(1, axis0)
+    yrow.insert(0, part[0])
+    yrow.insert(1, axis1)
+    rows.append(xrow)
+    rows.append(yrow)
   return rows
 
 def generatePathPositions_TOP_to_RIGHT(startOffset, n):
@@ -112,19 +121,51 @@ def generatePathPositions_LEFT_to_TOP(startOffset, n):
   positions.append( (x,y) )
   return positions
 
-def fillPathPositionTable(tbl, startOffset, n, axis0 = 'x', axis1 = 'y'):
+def fillPathPositionTable(tbl, startOffset, n, cubeTbl, axis0 = 'x', axis1 = 'y'):
   tbl.clear()
-  rows = generatePathPositionRows(startOffset, n, axis0, axis1)
+  rows = generatePathPositionRows(startOffset, n, cubeTbl, axis0, axis1)
   for row in rows:
     tbl.appendRow(row)
+def fillPathPositionCHOP(chop, startOffset, n, cubeTbl, axis0 = 'x', axis1 = 'y'):
+  parts = [
+           ('t', generatePathPositions_TOP_to_RIGHT(startOffset, n)),
+           ('r', generatePathPositions_RIGHT_to_BOTTOM(startOffset, n)),
+           ('b', generatePathPositions_BOTTOM_to_LEFT(startOffset, n)),
+           ('l', generatePathPositions_LEFT_to_TOP(startOffset, n))
+          ]
+  chop.clear()
+  chop.end = len(parts[0][1])-1
+  for part in parts:
+    ch0 = chop.appendChan(part[0] + axis0)
+    ch1 = chop.appendChan(part[0] + axis1)
+    xrow, yrow = positionsToRows(part[1])
+    #print( part[0] + axis0 + '-> ' + repr(xrow) )
+    #print( part[0] + axis1 + '-> ' + repr(yrow) )
+    ch0.vals = xrow#[:len(xrow)-1]
+    ch1.vals = yrow#[:len(yrow)-1]
 
-def positionsToRows(positions, name, axis0 = 'x', axis1 = 'y'):
-  xrow = [name, axis0]
-  yrow = [name, axis1]
+def positionsToRows(positions):
+  xrow = []
+  yrow = []
   for (x,y) in positions:
     xrow.append(x)
     yrow.append(y)
   return (xrow, yrow)
+
+def getCubeId(cubeTbl, x, y, z):
+  (x,y,z) = (str(int(x)),str(int(y)),str(int(z)))
+  labels = cubeTbl.row(0)
+  iid = labels.index('id')
+  ix = labels.index('x')
+  iy = labels.index('y')
+  iz = labels.index('z')
+  for row in cubeTbl.rows():
+    if row[ix].val == x and row[iy].val == y and row[iz].val == z:
+      return row[iid].val
+
+
+
+
 
 if __name__ == 'main':
   print(repr( generatePathPositions_TOP_to_RIGHT(2, 4) ) )
